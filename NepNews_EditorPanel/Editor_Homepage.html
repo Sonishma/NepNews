@@ -44,31 +44,25 @@
             <button class="view-images">View Uploaded Images</button>
             <p class="date">Date: 03/20/2025</p>
         
-            <div class="editor-toolbar">
-        
-                <select class="font-select">
-                    <option>Normal text</option>
-                    <option>Calibri</option>
-                </select>
-                <button class="font-size">-</button>
-                <button class="font-size">11</button>
-                <button class="font-size">+</button>
-                <button class="text-style">B</button>
-                <button class="text-style">U</button>
-                <button class="text-style">A</button>
-                <button class="insert-link">🔗</button>
-                <button class="insert-image">🖼️</button>
-                <button class="alignment">Align</button>
-            </div>
+
+          
             <div class="editor-box">
                 <textarea> Lorem ipsum dolor sit amet, consectetur adipiscing elit...</textarea>
+                <div class="edit">
+                  <button class="edit_button" onclick="openeditor">Edit</button>
+                </div>
             </div>
+
 
             <div class="button-group">
                 <button id="showDialog" class="reject-btn">Reject</button>
                 <button id ="showResendDialog"class="resend-btn">Resend For Correction</button>
-                <button class="approve-btn">Approve</button>
-            </div>
+                <button id="approveButton" class="approve-btn">Approve</button>
+
+          
+           
+
+            
         </section>
 
     </div>
@@ -95,6 +89,12 @@
             </div>
         </div>
     </div>
+
+    <!-- Approve Confirmation Dialog -->
+<div id="approveDialog" class="adialog">
+    <p>Article Aproved!</p>
+    <button id="approveOkButton">OK</button>
+</div>
     <script src="Editor_Homepage.js"></script>
 </body>
 </html>

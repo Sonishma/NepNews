@@ -1,3 +1,14 @@
+// config/db.js
+const mongoose = require('mongoose');
+require('dotenv').config(); // Load .env variables
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log('MongoDB connected to Atlas');
+  } catch (err) {
+    console.error(err.message);
+
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
@@ -12,6 +23,7 @@ const connectDB = async () => {
     console.log('MongoDB connected');
   } catch (error) {
     console.error('Error connecting to MongoDB', error);
+
     process.exit(1);
   }
 };
