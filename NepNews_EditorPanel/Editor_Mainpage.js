@@ -1,66 +1,73 @@
-// Sample article data - in a real application, this would come from a database
-const articles = {
-    1: {
-        id: 1,
-        author: 'Olivia Bennet',
-        title: 'Anautho anautho lagcha jindagi yo timi binaa',
-        status: 'Pending',
-        content: 'This is the full content of the first pending article. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget ultricies nisl nisl eget nisl. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
-    },
-    2: {
-        id: 2,
-        author: 'Olivia Bennet',
-        title: 'Anautho anautho lagcha jindagi yo timi binaa',
-        status: 'Pending',
-        content: 'This is the full content of the second pending article. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget ultricies nisl nisl eget nisl. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
-    },
-    3: {
-        id: 3,
-        author: 'Amelia Clarke',
-        title: 'Random news idk what to write',
-        status: 'Rejected',
-        content: 'This is the full content of the rejected article. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget ultricies nisl nisl eget nisl. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
-    },
-    4: {
-        id: 4,
-        author: 'Jacob Reynolds',
-        title: 'Wallu dun dun dunali wapablu tob tobali',
-        status: 'Approved',
-        content: 'This is the full content of the approved article. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget ultricies nisl nisl eget nisl. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
+document.addEventListener("DOMContentLoaded", function () {
+    const pendingSection = document.querySelector(".section:nth-of-type(1)");
+    const reviewedSection = document.querySelector(".section:nth-of-type(2)");
+
+    if (!pendingSection || !reviewedSection) {
+        console.error("❌ Error: Article sections missing in DOM.");
+        return;
     }
-};
 
-// Function to handle viewing an article
-function viewArticle(articleId) {
-    // Store the selected article ID in localStorage
-    localStorage.setItem('selectedArticleId', articleId);
+    async function loadArticles() {
+        try {
+            const res = await fetch("http://localhost:5000/api/articles");
+            if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
     
-    // Navigate to the article view page
-    window.location.href = 'Editor_Homepage.html';
-}
-
-// Login modal functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const loginModal = document.getElementById('loginModal');
-    const loginIcon = document.getElementById('loginIcon');
-    const closeModal = document.getElementById('closeModal');
+            const articles = await res.json();
     
-    if (loginIcon && loginModal && closeModal) {
-        // Open modal when user icon is clicked
-        loginIcon.addEventListener('click', function() {
-            loginModal.style.display = 'block';
-        });
-        
-        // Close modal when X is clicked
-        closeModal.addEventListener('click', function() {
-            loginModal.style.display = 'none';
-        });
-        
-        // Close modal when clicking outside of it
-        window.addEventListener('click', function(event) {
-            if (event.target == loginModal) {
-                loginModal.style.display = 'none';
+            if (!articles.length) {
+                pendingSection.innerHTML += "<p>No pending articles</p>";
+                reviewedSection.innerHTML += "<p>No reviewed articles</p>";
+                return;
             }
-        });
+    
+            // Clear existing articles
+            pendingSection.querySelectorAll(".article").forEach(el => el.remove());
+            reviewedSection.querySelectorAll(".article").forEach(el => el.remove());
+    
+            articles.forEach(article => {
+                if (!article.status) {
+                    console.error("❌ Error: Missing status for article", article);
+                    return;  // Skip articles without a status
+                }
+            
+                const articleDiv = document.createElement("div");
+                articleDiv.classList.add("article");
+            
+                let articleContent = ` 
+                    <div>
+                        <strong>${article.author}</strong><br>
+                        ${article.newsTitle}<br>
+                        <span class="status ${article.status.toLowerCase()}">Status: ${article.status}</span>
+                    </div>
+                `;
+            
+                if (article.status.toLowerCase() === "pending") {
+                    articleContent += `<button class="view-button" data-id="${article._id}">View</button>`;
+                    pendingSection.appendChild(articleDiv);
+                } else {
+                    reviewedSection.appendChild(articleDiv);
+                }
+            
+                articleDiv.innerHTML = articleContent;
+            });
+    
+        } catch (error) {
+            console.error("❌ Error fetching articles:", error);
+            pendingSection.innerHTML += "<p>⚠️ Unable to fetch pending articles</p>";
+            reviewedSection.innerHTML += "<p>⚠️ Unable to fetch reviewed articles</p>";
+        }
     }
+
+    // Handle "View" button click
+    document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("view-button")) {
+            const articleId = e.target.getAttribute("data-id");
+            if (!articleId) return console.error("❌ No article ID found");
+
+            // Redirect to the editor homepage with the selected article ID
+            window.location.href = `Editor_Homepage.html?id=${articleId}`;
+        }
+    });
+
+    loadArticles();
 });

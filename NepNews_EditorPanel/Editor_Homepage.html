@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Editor Panel</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="Editor_Homepage.css">
 </head>
 <body>
-
     <header class="header">
         <div class="logo">
             <h1 class="logo-text">NEPNEWS</h1>
@@ -20,7 +19,6 @@
     </header>
 
     <div class="main-container">
-
         <aside class="sidebar">
             <div class="search-bar">
                 <span class="material-icons">search</span> 
@@ -28,54 +26,46 @@
             </div>
 
             <h3>Recent Articles</h3>
-            <ul class="article-list">
-                <li class="pending">Olivia Bennet<br><span>Anautho anautho lagcha jindagi yo timi bina</span><br>Status: Pending</li>
-                <li class="rejected">Amelia Clarke<br><span>Random news idk what to write</span><br>Status: Rejected <button class="view-btn">View</button></li>
-                <li class="approved">Jacob Reynolds<br><span>Wallu dun dun dunali wapabul tob tobali</span><br>Status: Approved <button class="view-btn">View</button></li>
-            </ul>
+            <ul class="article-list"></ul>
         </aside>
 
         <section class="editor-section">
             <h2>Review And Edit News Articles</h2>
-            <p><strong>Title:</strong> Anautho anautho lagcha jindagi yo timi bina</p>
-            <p><strong>Author:</strong> Olivia Bennet</p>
-            <p><strong>Status:</strong> Pending</p>
+    <p><strong>Title:</strong> <span id="article-title"></span></p>
+    <p><strong>Author:</strong> <span id="article-author"></span></p>
+    <p><strong>Category:</strong> <span id="article-category"></span></p> <!-- Added Category Label -->
+    <p><strong>Status:</strong> <span id="article-status"></span></p>
+    <p class="date" id="article-date">Date: </p>
 
             <button class="view-images">View Uploaded Images</button>
-            <p class="date">Date: 03/20/2025</p>
-        
 
-          
             <div class="editor-box">
-                <textarea> Lorem ipsum dolor sit amet, consectetur adipiscing elit...</textarea>
+                <textarea id="article-description">Select an article to view details...</textarea>
                 <div class="edit">
-                  <button class="edit_button" onclick="openeditor">Edit</button>
+                    <button class="edit_button" id="edit-article-btn">Edit</button>
                 </div>
             </div>
 
-
             <div class="button-group">
                 <button id="showDialog" class="reject-btn">Reject</button>
-                <button id ="showResendDialog"class="resend-btn">Resend For Correction</button>
+                <button id="showResendDialog" class="resend-btn">Resend For Correction</button>
                 <button id="approveButton" class="approve-btn">Approve</button>
-
-          
-           
-
-            
+            </div>
         </section>
-
     </div>
+
+    <!-- Dialogs -->
     <div id="dialog" class="dialog">
         <div class="dialog-content">
-            <h2>Alert Dialog Box 2.0</h2>
-            <p>Reject This Article?</p>
+            <h2>Reject Article</h2>
+            <p>Are you sure you want to reject this article?</p>
             <div class="dialog-buttons">
                 <button id="cancel-btn">Cancel</button>
                 <button id="reject-confirm" class="reject">Reject</button>
             </div>
         </div>
     </div>
+
     <div id="resendDialog" class="resend-dialog">
         <div class="resend-dialog-content">
             <h2>Add suggestions and corrections</h2>
@@ -90,11 +80,11 @@
         </div>
     </div>
 
-    <!-- Approve Confirmation Dialog -->
-<div id="approveDialog" class="adialog">
-    <p>Article Aproved!</p>
-    <button id="approveOkButton">OK</button>
-</div>
+    <div id="approveDialog" class="adialog">
+        <p>Article Approved!</p>
+        <button id="approveOkButton">OK</button>
+    </div>
+
     <script src="Editor_Homepage.js"></script>
 </body>
 </html>
