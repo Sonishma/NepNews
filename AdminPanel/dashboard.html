@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Author Panel</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <script defer src="dashboard.js"></script>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="left-section">
+            
+            <div class="logo">
+                <img src="Screenshot 2025-03-30 160041.png" alt="Logo">
+            </div>
+        </div>
+        <div class="icons">
+            <span class="notification-icon">🔔</span>
+            <span class="profile-icon">👤</span>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar-toggle">☰</div>
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-search" style="padding: 10px;">
+                <input type="text" id="sidebarSearchInput" placeholder="Search..." style="width: 70%; padding: 5px;">
+                <button onclick="handleSidebarSearch()" style="padding: 5px;">🔍</button>
+            </div>
+            <ul>
+                <li>Home</li>
+                <li>Manage Authors</li>
+                <li>Manage Editors</li>
+                <li>Manage Articles</li>
+                <li>Manage Users</li>
+                <li>Manage Ad's Manager</li>
+            </ul>
+        </div>
+
+        <h2>Dashboard Overview</h2>
+
+    <div class="charts-container">
+        <canvas id="barChart" width="400" height="200"></canvas>
+        <canvas id="growthChart" width="400" height="200"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        
+</body>
+</html>

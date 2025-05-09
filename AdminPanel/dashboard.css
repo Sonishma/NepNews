@@ -1,0 +1,95 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f4f4f4;
+}
+/* Sidebar default */
+.sidebar {
+    width: 250px;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Hide Sidebar when toggled */
+.sidebar.hidden {
+    transform: translateX(-100%);
+}
+
+/* Button/Icon for toggling sidebar */
+.sidebar-toggle {
+    cursor: pointer;
+    font-size: 24px;
+    position: absolute;
+    align-items: center;
+    margin-left: 20;
+    top: 20px;
+    left: 20px;
+}
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Keeps icons fixed on the right */
+    background: #1f1f1f;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(245, 241, 241, 0.1);
+}
+.sidebar ul li:nth-child(1) {
+    color: #A61419;         /* White text */
+}
+.left-section {
+    display: flex;
+    align-items: center;
+}
+
+.menu-icon {
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 10px; /* Space between toggle and logo */
+}
+
+.logo img {
+    margin-left:30px; 
+    width:146px;
+    height: auto;
+}
+
+.icons span {
+    margin-left: 15px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+
+.container {
+    display: flex;
+}
+
+.sidebar {
+    width: 200px;
+    background: #1f1f1f;
+    color: #d9d9d9;
+    height: 100vh;
+    transition: transform 0.3s ease-in-out;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: #d9d9d9;
+}
+
+.sidebar li {
+    padding: 15px;
+    cursor: pointer;
+}
+
+.sidebar li:hover {
+    background-color: #d9d9d9;
+    color:#A61419;
+    box-shadow: 0 5px 5px rgba(255, 255, 255, 0.1);
+}
+
+
+
