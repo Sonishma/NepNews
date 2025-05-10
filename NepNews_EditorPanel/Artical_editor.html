@@ -19,10 +19,10 @@
       border-radius: 8px;
     }
     #editor {
-  min-height: 500px; /* Increase the height */
-  max-height: 700px; /* Optional: Add max height if necessary */
-  overflow-y: auto;  /* Enable scrolling if content exceeds */
-}
+      min-height: 500px;
+      max-height: 700px;
+      overflow-y: auto;
+    }
 
     .image-gallery {
       display: flex;
@@ -56,6 +56,22 @@
       border-radius: 6px;
       cursor: pointer;
     }
+
+    .image-with-text {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .image-with-text img {
+      max-width: 100px;
+      max-height: 100px;
+    }
+
+    .image-with-text span {
+      font-size: 14px;
+      color: #333;
+    }
   </style>
 </head>
 <body>
@@ -68,9 +84,11 @@
 
     <h4>Drag & Drop Images into the Article</h4>
     <div class="image-gallery" id="imageGallery">
-      <img src="https://via.placeholder.com/150/000000" draggable="true" />
-      <img src="https://via.placeholder.com/150/111111" draggable="true" />
-      <img src="https://via.placeholder.com/150/222222" draggable="true" />
+      <img src="https://picsum.photos/id/1015/150/100" draggable="true" alt="Dummy Image 1" />
+      <img src="https://picsum.photos/id/1016/150/100" draggable="true" alt="Dummy Image 2" />
+      <img src="https://picsum.photos/id/1020/150/100" draggable="true" alt="Dummy Image 3" />
+      <img src="https://picsum.photos/id/1035/150/100" draggable="true" alt="Dummy Image 4" />
+      <img src="https://picsum.photos/id/1041/150/100" draggable="true" alt="Dummy Image 5" />
     </div>
 
     <div class="button-group">
@@ -78,98 +96,6 @@
     </div>
   </div>
 
-  <script>
-    let editorInstance;
-    let currentArticleId;
-
-    // Get article ID from URL
-    function getArticleIdFromURL() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get("id");
-    }
-
-    // Initialize CKEditor
-    ClassicEditor
-      .create(document.querySelector('#editor'), {
-        toolbar: [ 
-          'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList',
-          'imageUpload', 'blockQuote', 'insertTable', 'undo', 'redo'
-        ],
-      })
-      .then(editor => {
-        editorInstance = editor;
-        loadArticle();
-      })
-      .catch(error => {
-        console.error("CKEditor error:", error);
-      });
-
-    // Fetch and load article into editor
-    function loadArticle() {
-      currentArticleId = getArticleIdFromURL();
-      if (!currentArticleId) {
-        alert("❌ No article ID provided.");
-        return;
-      }
-
-      fetch(`http://localhost:5000/api/articles/${currentArticleId}`)
-        .then(response => {
-          if (!response.ok) throw new Error("Article not found.");
-          return response.json();
-        })
-        .then(article => {
-          document.getElementById("titleInput").value = article.newsTitle || '';
-          editorInstance.setData(article.newsDescription || article.content || '');
-        })
-        .catch(err => {
-          console.error("Failed to load article:", err);
-          alert("⚠️ Failed to load article.");
-        });
-    }
-
-    // Save updated article
-    function saveArticle() {
-      const updatedTitle = document.getElementById("titleInput").value;
-      const updatedContent = editorInstance.getData();
-
-      fetch(`http://localhost:5000/api/articles/${currentArticleId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          title: updatedTitle,
-          description: updatedContent  // or "content"
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        alert("✅ Article updated successfully.");
-      })
-      .catch(err => {
-        console.error("Update failed:", err);
-        alert("❌ Failed to update article.");
-      });
-    }
-
-    // Enable drag-and-drop images
-    document.querySelectorAll(".image-gallery img").forEach(img => {
-      img.addEventListener("dragstart", e => {
-        e.dataTransfer.setData("text/html", `<img src="${img.src}" alt="Dropped Image"/>`);
-      });
-    });
-
-    document.querySelector("#editor").addEventListener("drop", e => {
-      e.preventDefault();
-      const html = e.dataTransfer.getData("text/html");
-      editorInstance.model.change(writer => {
-        const viewFragment = editorInstance.data.processor.toView(html);
-        const modelFragment = editorInstance.data.toModel(viewFragment);
-        editorInstance.model.insertContent(modelFragment);
-      });
-    });
-
-    document.querySelector("#editor").addEventListener("dragover", e => e.preventDefault());
-  </script>
+  <script src="Article_editor.js"></script>
 </body>
 </html>

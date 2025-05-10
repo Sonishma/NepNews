@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function loadArticles() {
         try {
             const res = await fetch("http://localhost:5000/api/articles");
+
             if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
     
             const articles = await res.json();
