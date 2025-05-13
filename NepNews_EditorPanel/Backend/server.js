@@ -10,7 +10,7 @@ const connectDB = require('./config/db');
 // Route files
 const articleRoutes = require('./routes/articleroutes');
 const loginRoutes = require('./routes/loginRoutes');
-// const editorRoutes = require('./routes/editorRoutes');
+const adRoutes = require('./routes/adsroutes');
 
 // Connect to MongoDB
 connectDB();
@@ -25,7 +25,9 @@ app.use(express.json());
 // Routes
 app.use('/api', articleRoutes);
 app.use('/api/auth', loginRoutes);
+app.use('/api/ads', adRoutes); 
 app.use("/uploads", express.static("uploads"));
+
 
 // Start server
 const PORT = process.env.PORT || 5000;
