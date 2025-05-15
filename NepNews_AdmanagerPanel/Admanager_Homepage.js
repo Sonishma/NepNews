@@ -1,33 +1,32 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const continueButton = document.querySelector('.continue-btn');
     const uploadArea = document.querySelector('.image-upload-area');
 
-    let selectedImageFile = null; // Store the selected image file globally
+    let selectedImageFile = null;
 
     if (uploadArea) {
-        uploadArea.addEventListener('click', function() {
+        uploadArea.addEventListener('click', function () {
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.accept = 'image/*';
             fileInput.style.display = 'none';
 
             document.body.appendChild(fileInput);
-            fileInput.click(); // Open file picker
+            fileInput.click();
 
-            fileInput.addEventListener('change', function(event) {
+            fileInput.addEventListener('change', function (event) {
                 if (event.target.files && event.target.files[0]) {
                     const file = event.target.files[0];
 
-                    // Validate image file type
                     if (!file.type.startsWith('image/')) {
                         alert("Please select a valid image file.");
                         return;
                     }
 
-                    selectedImageFile = file; // Store image file globally
+                    selectedImageFile = file;
                     const reader = new FileReader();
 
-                    reader.onload = function(e) {
+                    reader.onload = function (e) {
                         uploadArea.style.backgroundImage = `url('${e.target.result}')`;
                         uploadArea.style.backgroundSize = 'cover';
                         uploadArea.style.backgroundPosition = 'center';
@@ -40,11 +39,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (continueButton) {
-        continueButton.addEventListener('click', async function() {
+        continueButton.addEventListener('click', function () {
             const title = document.querySelector('.form-control[placeholder="Ad Title"]')?.value;
             const websiteLink = document.querySelector('.form-control[placeholder="Ad website link"]')?.value;
-            const position = document.querySelector('.form-control select')?.value;
-            const placementPlan = document.querySelector('.plan-box.selected .location-title')?.innerText;
+            const position = document.getElementById('positionSelect')?.value;
             const durationInput = document.querySelector('input[name="duration"]:checked');
             const duration = durationInput ? durationInput.nextSibling.textContent.trim() : null;
 
@@ -53,32 +51,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            const formData = new FormData();
-            formData.append("title", title);
-            formData.append("websiteLink", websiteLink);
-            formData.append("position", position);
-            formData.append("placementPlan", placementPlan);
-            formData.append("duration", parseInt(duration.split(' ')[0]));
-            formData.append("image", selectedImageFile);
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const adData = {
+                    title: title,
+                    websiteLink: websiteLink,
+                    position: position,
+                    duration: duration,
+                    imageBase64: e.target.result // Save base64 image for preview
+                };
 
-            try {
-                const response = await fetch("http://localhost:5000/api/ads/upload", {
-                    method: "POST",
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    console.log("Ad uploaded successfully:", result);
-                    window.location.href = 'Admanager_Summary.html';
-                } else {
-                    alert("Error saving ad: " + result.error);
-                }
-            } catch (error) {
-                console.error("Error uploading ad:", error);
-                alert("Something went wrong. Please try again.");
-            }
+                // Store in localStorage to use in summary page
+                localStorage.setItem('adData', JSON.stringify(adData));
+                window.location.href = 'Admanager_Summary.html';
+            };
+            reader.readAsDataURL(selectedImageFile);
         });
     }
 });

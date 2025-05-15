@@ -1,6 +1,11 @@
 document.addEventListener("DOMContentLoaded", function () {
     const pendingSection = document.querySelector(".section:nth-of-type(1)");
     const reviewedSection = document.querySelector(".section:nth-of-type(2)");
+    const userIcon = document.querySelector(".user-icon");
+  const modal = document.getElementById("profileModal");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const cancelBtn = document.getElementById("cancelBtn");
+  const emailDisplay = document.getElementById("editorEmailDisplay");
 
     if (!pendingSection || !reviewedSection) {
         console.error("❌ Error: Article sections missing in DOM.");
@@ -71,4 +76,26 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     loadArticles();
+      // Get email from localStorage (set during login)
+  const editorEmail = localStorage.getItem("editorEmail") || "unknown@editor.com";
+  emailDisplay.textContent = editorEmail;
+
+  // Show modal when person icon is clicked
+  userIcon.addEventListener("click", () => {
+    modal.classList.remove("hidden");
+  });
+
+  // Hide modal
+  cancelBtn.addEventListener("click", () => {
+    modal.classList.add("hidden");
+  });
+
+  // Logout
+  logoutBtn.addEventListener("click", () => {
+    const confirmLogout = confirm("Are you sure you want to logout?");
+    if (confirmLogout) {
+      localStorage.removeItem("editorEmail");
+      window.location.href = "login.html";
+    }
+  });
 });

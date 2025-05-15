@@ -20,10 +20,10 @@
 
     <div class="main-container">
         <aside class="sidebar">
-            <div class="search-bar">
-                <span class="material-icons">search</span> 
-                <input type="text" placeholder="Search For Articles">
-            </div>
+           <div class="search-bar">
+  <span class="material-icons">search</span> 
+  <input type="text" id="articleSearchInput" placeholder="Search For Articles">
+</div>
 
             <h3>Recent Articles</h3>
             <ul class="article-list"></ul>
@@ -84,7 +84,15 @@
         <p>Article Approved!</p>
         <button id="approveOkButton">OK</button>
     </div>
-
+<div id="profileModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>👤 Editor Profile</h3>
+    <p>Email: <span id="editorEmailDisplay"></span></p>
+     <p><strong>Name:</strong> <span id="editorNameDisplay">Ram Shrestha</span></p>
+    <button id="logoutBtn" class="logout-btn">Logout</button>
+    <button id="cancelBtn" class="cancel-btn">Cancel</button>
+  </div>
+</div>
     <script src="Editor_Homepage.js"></script>
 </body>
 </html>

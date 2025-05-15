@@ -1,59 +1,58 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Get elements
   const loginBtn = document.getElementById("loginBtn");
-  const loginPage = document.getElementById('loginPage');
-  const resetPage = document.getElementById('resetPage');
-  const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-  const backToLogin = document.getElementById('backToLogin');
-  const header = document.getElementById('header');
-  const passwordToggle = document.querySelector('.password-toggle');
-  const loginPasswordToggle = document.querySelector('.login-password-toggle');
+  const emailInput = document.getElementById("emailInput");
+  const passwordInput = document.getElementById("loginPassword");
+  const forgotPasswordLink = document.getElementById("forgotPasswordLink");
+  const loginPasswordToggle = document.querySelector(".login-password-toggle");
 
-  // Fake login button click
-  loginBtn.addEventListener("click", function () {
-    const email = document.getElementById("emailInput").value.trim();
-    const password = document.getElementById("loginPassword").value.trim();
+  // 👁️ Toggle visibility for login password
+  loginPasswordToggle.addEventListener("click", () => {
+    const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+    passwordInput.setAttribute("type", type);
+    loginPasswordToggle.textContent = type === "password" ? "👁️" : "🙈";
+  });
 
-    if (email === "" || password === "") {
-      alert("⚠️ Email and password are required.");
+  // ✅ Login button handler
+  loginBtn.addEventListener("click", async function (e) {
+    e.preventDefault();
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    // Basic validation for email format
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    if (!email || !password) {
+      alert("Please enter both email and password.");
+      return;
+    } else if (!emailPattern.test(email)) {
+      alert("Please enter a valid email address.");
       return;
     }
 
-    // Simulate successful login
-    alert("✅ Login Successful!");
-    window.location.href = "Admanager_HomePage.html"; // Change this to test redirect
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email, password }),
+})
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Login successful!");
+        localStorage.setItem("editorEmail", email); // store email if needed
+        window.location.href = "Admanager_Homepage.html";
+      } else {
+        alert("Login failed: " + data.message);
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Something went wrong. Please try again later.");
+    }
   });
 
-  // Show reset page
-  forgotPasswordLink.addEventListener('click', function () {
-    loginPage.style.display = 'none';
-    resetPage.style.display = 'flex';
-    header.style.display = 'block';
-  });
-
-  // Show login page again
-  backToLogin.addEventListener('click', function () {
-    resetPage.style.display = 'none';
-    loginPage.style.display = 'flex';
-    header.style.display = 'none';
-  });
-
-  // Toggle visibility for reset password fields
-  passwordToggle.addEventListener('click', function () {
-    const confirmPassword = document.getElementById('confirmPassword');
-    const newPassword = document.getElementById('newPassword');
-
-    const isPassword = confirmPassword.type === 'password';
-    confirmPassword.type = isPassword ? 'text' : 'password';
-    newPassword.type = isPassword ? 'text' : 'password';
-  });
-
-  // Toggle login password visibility
-  loginPasswordToggle.addEventListener('click', function () {
-    const loginPassword = document.getElementById('loginPassword');
-
-    const isPassword = loginPassword.type === 'password';
-    loginPassword.type = isPassword ? 'text' : 'password';
-    this.style.opacity = isPassword ? '0.7' : '1';
+  // 🔁 Forgot Password - Go to separate page
+  forgotPasswordLink.addEventListener("click", function () {
+    window.location.href = "Forgot_Password.html";
   });
 });

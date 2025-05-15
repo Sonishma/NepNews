@@ -159,7 +159,7 @@ router.put('/articles/:id', async (req, res) => {
   }
 });
 
-// Approve article by ID
+
 // Approve article by ID
 router.patch('/articles/:id/approve', async (req, res) => {
   try {

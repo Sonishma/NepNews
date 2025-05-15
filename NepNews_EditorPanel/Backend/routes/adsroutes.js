@@ -20,31 +20,33 @@ const fileFilter = (req, file, cb) => {
     const mimetype = fileTypes.test(file.mimetype);
 
     if (mimetype && extname) {
-        return cb(null, true); // Accept the file
+        return cb(null, true);
     } else {
-        cb(new Error('Only image files (JPEG, PNG, GIF) are allowed!'), false); // Reject the file
+        cb(new Error('Only image files (JPEG, PNG, GIF) are allowed!'), false);
     }
 };
 
 const upload = multer({
     storage,
-    fileFilter, // Use the file filter for validation
-    limits: { fileSize: 5 * 1024 * 1024 } // Limit file size to 5 MB (optional)
+    fileFilter,
+    limits: { fileSize: 5 * 1024 * 1024 } // Limit file size to 5 MB
 });
 
 // Handle Ad Submission WITH Image Upload
 router.post("/upload", upload.single("image"), async (req, res) => {
-    console.log("Received image file:", req.file); // Debugging log
+    console.log("Received image file:", req.file);
 
     try {
-        const { title, websiteLink, position, placementPlan, duration } = req.body;
-        const imageUrl = req.file ? `/uploads/${req.file.filename}` : null; // Store the file path as URL
+        const { title, websiteLink, position, duration } = req.body;
+
+        // Construct full image URL
+        const baseUrl = `${req.protocol}://${req.get("host")}`;
+        const imageUrl = req.file ? `${baseUrl}/uploads/${req.file.filename}` : null;
 
         const newAd = new Ad({
             title,
             websiteLink,
             position,
-            placementPlan,
             duration: parseInt(duration),
             imageUrl
         });

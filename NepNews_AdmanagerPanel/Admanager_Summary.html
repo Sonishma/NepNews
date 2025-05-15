@@ -3,8 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ad Manager Add Panel</title>
+    <title>Ad Manager Summary Panel</title>
     <link rel="stylesheet" href="Admanager_summary.css">
+    <!-- <style>
+        .container { max-width: 1000px; margin: auto; padding: 20px; font-family: sans-serif; }
+        .panel-header, .summary-header { display: flex; justify-content: space-between; align-items: center; }
+        .logo .nep-logo { font-size: 20px; font-weight: bold; }
+        .logo .title { font-size: 16px; color: gray; }
+        .summary-title { font-size: 24px; font-weight: bold; margin: 20px 0; }
+        .summary-content { display: flex; justify-content: space-between; }
+        .ad-details { flex: 1; padding-right: 20px; }
+        .ad-preview img { max-width: 300px; border-radius: 10px; }
+        .upload-button-container { margin-top: 20px; }
+        .upload-btn { padding: 10px 20px; font-size: 16px; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 5px; }
+    </style> -->
 </head>
 <body>
     <div class="container">
@@ -15,39 +27,100 @@
             </div>
             <div class="user-icon">⚫</div>
         </div>
-        
+
         <div class="summary-header">
             <div class="summary-title">Ad Summary</div>
         </div>
-        
+
         <div class="summary-content">
             <div class="ad-details">
                 <h1 class="ad-title">Ad Title Goes Here</h1>
-                <div class="ad-website">https://www/hehehehehehehe-ad-website.com</div>
-                
-                <div class="detail-row">
-                    <div class="detail-label">Ad Location (Primary, Secondary, Tertiary) goes here</div>
-                </div>
-                
-                <div class="detail-row">
-                    <div class="detail-label">Duration of the ad here</div>
-                </div>
-                
-                <div class="detail-row">
-                    <div class="detail-label">Expected Views: 100000</div>
-                </div>
-                <div class="upload-button-container">
-    <button class="upload-btn">Upload Ad</button>
-</div>
+                <div class="ad-website">https://www/example.com</div>
 
-                
-                
+                <div class="detail-row">
+                    <div class="detail-label ad-position">Position goes here</div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label ad-duration">Duration goes here</div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label ad-views">Expected Views: Calculating...</div>
+                </div>
+
+                <div class="upload-button-container">
+                    <button class="upload-btn">Upload Ad</button>
+                </div>
             </div>
-            
+
             <div class="ad-preview">
-                <img src="burger-ad.jpg" alt="Burger Advertisement">
+                <img src="" alt="Ad Preview" id="ad-image">
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const adData = JSON.parse(localStorage.getItem('adData'));
+
+            if (!adData) {
+                alert("No ad data found. Please go back and fill the form.");
+                window.location.href = 'Admanager_Homepage.html';
+                return;
+            }
+
+            document.querySelector('.ad-title').innerText = adData.title;
+            document.querySelector('.ad-website').innerText = adData.websiteLink;
+            document.querySelector('.ad-position').innerText = `Ad Position: ${adData.position}`;
+            document.querySelector('.ad-duration').innerText = `Ad Duration: ${adData.duration}`;
+            document.querySelector('#ad-image').src = adData.imageBase64;
+
+            // Example estimation logic (change this as needed)
+            const estimatedViews = parseInt(adData.duration.split(" ")[0]) * 10000;
+            document.querySelector('.ad-views').innerText = `Expected Views: ${estimatedViews}`;
+
+            const uploadButton = document.querySelector('.upload-btn');
+
+            uploadButton.addEventListener('click', async function () {
+                try {
+                    // Convert base64 to blob
+                    const base64 = adData.imageBase64.split(',')[1];
+                    const byteCharacters = atob(base64);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const imageBlob = new Blob([byteArray], { type: 'image/jpeg' });
+
+                    const formData = new FormData();
+                    formData.append("title", adData.title);
+                    formData.append("websiteLink", adData.websiteLink);
+                    formData.append("position", adData.position);
+                    formData.append("duration", parseInt(adData.duration.split(" ")[0]));
+                    formData.append("image", imageBlob, "ad-image.jpg");
+
+                    const response = await fetch("http://localhost:5000/api/ads/upload", {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        alert("Ad uploaded successfully!");
+                        localStorage.removeItem('adData');
+                        window.location.href = "Admanager_Homepage.html";
+                    } else {
+                        alert("Failed to upload ad: " + result.error);
+                    }
+                } catch (error) {
+                    console.error("Upload error:", error);
+                    alert("Something went wrong while uploading the ad.");
+                }
+            });
+        });
+    </script>
 </body>
 </html>
