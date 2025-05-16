@@ -1,16 +1,54 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const viewAdButtons = document.querySelectorAll('.view-ad-btn');
-    const viewPerformanceButtons = document.querySelectorAll('.view-performance-btn');
+document.addEventListener('DOMContentLoaded', async function () {
+    const liveAdsSection = document.querySelector('.live-ads');
+    const recentAdsSection = document.querySelector('.recent-ads');
+    const uploadTab = document.getElementById('upload-tab');
 
-    viewAdButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            window.location.href = 'Admanager_summary.html';
+    // Redirect to homepage.html when "Upload Ad" tab is clicked
+    if (uploadTab) {
+        uploadTab.addEventListener('click', () => {
+            window.location.href = 'Admanager_Homepage.html';
         });
-    });
+    }
 
-    viewPerformanceButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            window.location.href = 'Admanager_AdPerformance.html';
+    // Reset ad sections
+    liveAdsSection.innerHTML = '<h2>Live Ads</h2>';
+    recentAdsSection.innerHTML = '<h2>Recent Ads</h2>';
+
+    try {
+        const res = await fetch('http://localhost:5000/api/ads');
+        const ads = await res.json();
+
+        const today = new Date();
+
+        ads.forEach(ad => {
+            const createdDate = new Date(ad.createdAt);
+            const daysPassed = Math.floor((today - createdDate) / (1000 * 60 * 60 * 24));
+            const isActive = daysPassed < ad.duration;
+
+            const adItem = document.createElement('div');
+            adItem.classList.add('ad-item');
+
+            const formattedDate = createdDate.toLocaleDateString();
+
+            if (isActive) {
+                adItem.innerHTML = `
+                    <p><strong>${formattedDate}</strong></p>
+                    <p>${ad.title}</p>
+                    <p><span class="location ${ad.position?.toLowerCase()}">${ad.position}</span></p>
+                    <p>Time Remaining: <span class="time-remaining">${daysPassed}/${ad.duration} days</span></p>
+                `;
+                liveAdsSection.appendChild(adItem);
+            } else {
+                adItem.innerHTML = `
+                    <p><strong>${formattedDate}</strong></p>
+                    <p>${ad.title}</p>
+                    <p><span class="location ${ad.position?.toLowerCase()}">${ad.position}</span></p>
+                    <p>Expired after: ${ad.duration} Days</p>
+                `;
+                recentAdsSection.appendChild(adItem);
+            }
         });
-    });
+    } catch (err) {
+        console.error('Error fetching ads:', err);
+    }
 });

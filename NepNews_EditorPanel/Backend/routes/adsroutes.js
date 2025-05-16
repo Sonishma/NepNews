@@ -58,5 +58,15 @@ router.post("/upload", upload.single("image"), async (req, res) => {
         res.status(500).json({ error: "Error saving ad", details: error.message });
     }
 });
+// Fetch all ads
+router.get("/", async (req, res) => {
+    try {
+        const ads = await Ad.find().sort({ createdAt: -1 }); // latest first
+        res.status(200).json(ads);
+    } catch (err) {
+        console.error("Error fetching ads:", err);
+        res.status(500).json({ error: "Failed to fetch ads" });
+    }
+});
 
 module.exports = router;

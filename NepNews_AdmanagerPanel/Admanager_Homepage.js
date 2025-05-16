@@ -1,43 +1,76 @@
 document.addEventListener('DOMContentLoaded', function () {
     const continueButton = document.querySelector('.continue-btn');
     const uploadArea = document.querySelector('.image-upload-area');
+   const uploadTab = document.getElementById('upload-tab');
+const viewTab = document.getElementById('view-tab');
+
 
     let selectedImageFile = null;
 
+    // 🔁 Handle View Ads redirection
+    if (viewTab) {
+    viewTab.addEventListener('click', function () {
+        window.location.href = 'Admanager_manager.html';
+    });
+}
+
+
+    // 📦 Prefill form if editing (came from Back button)
+    const draft = JSON.parse(localStorage.getItem('adDataDraft'));
+    if (draft) {
+        document.querySelector('.form-control[placeholder="Ad Title"]').value = draft.title;
+        document.querySelector('.form-control[placeholder="Ad website link"]').value = draft.websiteLink;
+        document.getElementById('positionSelect').value = draft.position;
+
+        const radios = document.querySelectorAll('input[name="duration"]');
+        radios.forEach(r => {
+            if (draft.duration.includes(r.nextSibling.textContent.trim())) {
+                r.checked = true;
+            }
+        });
+
+        // 🖼️ Restore image preview
+        uploadArea.style.backgroundImage = `url('${draft.imageBase64}')`;
+        uploadArea.style.backgroundSize = 'cover';
+        uploadArea.style.backgroundPosition = 'center';
+
+        // Convert base64 to File object
+        fetch(draft.imageBase64)
+            .then(res => res.blob())
+            .then(blob => {
+                selectedImageFile = new File([blob], "restored-image.jpg", { type: blob.type });
+            });
+    }
+
+    // 📤 Image Upload Handling
     if (uploadArea) {
         uploadArea.addEventListener('click', function () {
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.accept = 'image/*';
             fileInput.style.display = 'none';
-
             document.body.appendChild(fileInput);
             fileInput.click();
 
             fileInput.addEventListener('change', function (event) {
-                if (event.target.files && event.target.files[0]) {
-                    const file = event.target.files[0];
-
-                    if (!file.type.startsWith('image/')) {
-                        alert("Please select a valid image file.");
-                        return;
-                    }
-
+                const file = event.target.files[0];
+                if (file && file.type.startsWith('image/')) {
                     selectedImageFile = file;
                     const reader = new FileReader();
-
                     reader.onload = function (e) {
                         uploadArea.style.backgroundImage = `url('${e.target.result}')`;
                         uploadArea.style.backgroundSize = 'cover';
                         uploadArea.style.backgroundPosition = 'center';
                     };
-
                     reader.readAsDataURL(file);
+                } else {
+                    alert("Please select a valid image file.");
                 }
             });
         });
     }
 
+    // ✅ Continue Button Click
     if (continueButton) {
         continueButton.addEventListener('click', function () {
             const title = document.querySelector('.form-control[placeholder="Ad Title"]')?.value;
@@ -58,11 +91,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     websiteLink: websiteLink,
                     position: position,
                     duration: duration,
-                    imageBase64: e.target.result // Save base64 image for preview
+                    imageBase64: e.target.result
                 };
 
-                // Store in localStorage to use in summary page
+                // 💾 Save final and draft versions
                 localStorage.setItem('adData', JSON.stringify(adData));
+                localStorage.setItem('adDataDraft', JSON.stringify(adData));
+
                 window.location.href = 'Admanager_Summary.html';
             };
             reader.readAsDataURL(selectedImageFile);
