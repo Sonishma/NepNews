@@ -104,3 +104,28 @@ const viewTab = document.getElementById('view-tab');
         });
     }
 });
+// Toggle profile modal
+const userIcon = document.getElementById('userIcon');
+const profileModal = document.getElementById('profileModal');
+const cancelBtn = document.getElementById('cancelBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+
+// Dummy editor email (you can set this dynamically later)
+document.getElementById('editorEmailDisplay').textContent = 'editor@example.com';
+
+userIcon.addEventListener('click', () => {
+    profileModal.classList.toggle('hidden');
+});
+
+cancelBtn.addEventListener('click', () => {
+    profileModal.classList.add('hidden');
+});
+
+// Logout
+  logoutBtn.addEventListener("click", () => {
+    const confirmLogout = confirm("Are you sure you want to logout?");
+    if (confirmLogout) {
+      localStorage.removeItem("editorEmail");
+      window.location.href = "login.html";
+    }
+  });

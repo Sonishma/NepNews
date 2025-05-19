@@ -15,7 +15,8 @@
                 <div class="nep-logo">NEPNEWS</div>
                 <div class="title">Ad Manager Panel</div>
             </div>
-            <div class="user-icon">⚫</div>
+            
+            <div class="user-icon" id="userIcon">👤</div>
         </div>
         
        <div class="tabs">
@@ -64,7 +65,15 @@
       </section>
     </main>
   </div>
-
+<div id="profileModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>👤 Editor Profile</h3>
+    <p>Email: <span id="editorEmailDisplay"></span></p>
+     <p><strong>Name:</strong> <span id="editorNameDisplay">Ram Shrestha</span></p>
+    <button id="logoutBtn" class="logout-btn">Logout</button>
+    <button id="cancelBtn" class="cancel-btn">Cancel</button>
+  </div>
+</div>
   <script src="Admanager_manager.js"></script>
 </body>
 </html>
