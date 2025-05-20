@@ -1,18 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const Article = require('../models/Article.js');
+const { Article, EditorArticle } = require('../models/Article.js');
 const { Types: { ObjectId } } = mongoose;
-const sanitizeHtml = require('sanitize-html'); // If you want to sanitize HTML tags
+const sanitizeHtml = require('sanitize-html');
 
-// GET all articles with pagination
+// GET all articles from 'articles' collection with pagination
 router.get('/articles', async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
     const articles = await Article.find()
       .skip((page - 1) * limit)
-      .limit(limit);
-
+      .limit(Number(limit));
     res.json(articles);
   } catch (error) {
     console.error('Error fetching articles:', error);
@@ -20,169 +19,169 @@ router.get('/articles', async (req, res) => {
   }
 });
 
-// GET article by ID
+// GET article by ID from 'articles'
 router.get('/articles/:id', async (req, res) => {
-  console.log(`Received request for article ID: ${req.params.id}`);
   try {
     const { id } = req.params;
-
-    if (!ObjectId.isValid(id)) {
-      console.log(`Invalid ID format: ${id}`);
-      return res.status(400).json({ error: 'Invalid article ID format' });
-    }
-
+    if (!ObjectId.isValid(id)) return res.status(400).json({ error: 'Invalid article ID format' });
     const article = await Article.findById(id);
-    console.log(`Article found: ${article !== null}`);
-
-    if (!article) {
-      return res.status(404).json({ error: `Article with ID ${id} not found` });
-    }
-
-    return res.json(article);
+    if (!article) return res.status(404).json({ error: 'Article not found' });
+    res.json(article);
   } catch (error) {
-    console.error(`Error finding article: ${error.message}`);
-    return res.status(500).json({ error: error.message });
+    console.error('Error finding article:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
-// CREATE (Save) a new article
+// CREATE new article in 'articles' collection
 router.post('/articles', async (req, res) => {
   try {
-    const { newsTitle, newsDescription, status, categories, author } = req.body;
-
-    // Validate required fields
-    if (!newsTitle || !newsDescription || !status || !author) {
+    const { title, content, category, coverImage, additionalImage1, additionalImage2, status } = req.body;
+    if (!title || !content || !category) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    // Ensure the status is valid
-    const validStatuses = ['Pending', 'Reviewed', 'Approved'];
-    if (!validStatuses.includes(status)) {
+    const validStatuses = ['draft', 'pending', 'approved', 'review'];
+    if (status && !validStatuses.includes(status)) {
       return res.status(400).json({ message: 'Invalid status value' });
     }
 
-    // Create new article in 'edites_articles' collection
     const newArticle = new Article({
-      newsTitle,
-      newsDescription,
-      status,
-      categories: categories || [],
-      author,
-      date: new Date()
+      title,
+      content,
+      category,
+      coverImage: coverImage || "",
+      additionalImage1: additionalImage1 || "",
+      additionalImage2: additionalImage2 || "",
+      status: status || 'draft'
     });
 
     await newArticle.save();
-    res.status(201).json({ message: 'Article saved successfully', article: newArticle });
-
+    res.status(201).json({ message: 'Article created successfully', article: newArticle });
   } catch (error) {
-    console.error('Error saving article:', error);
+    console.error('Error creating article:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// UPDATE article status
-router.put('/articles/:id/status', async (req, res) => {
-  try {
-    const articleId = req.params.id;
-    const { status } = req.body;
-
-    if (!status) {
-      return res.status(400).json({ message: 'Status is required' });
-    }
-
-    const validStatuses = ['draft', 'published', 'archived'];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ message: 'Invalid status value' });
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(articleId)) {
-      return res.status(400).json({ message: 'Invalid article ID' });
-    }
-
-    const article = await Article.findByIdAndUpdate(
-      articleId,
-      { status },
-      { new: true }
-    );
-
-    if (!article) {
-      return res.status(404).json({ message: 'Article not found' });
-    }
-
-    res.status(200).json({
-      message: 'Article status updated successfully',
-      article,
-    });
-  } catch (error) {
-    console.error('Error updating article status:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// UPDATE article content (title and description)
+// UPDATE article content in 'articles'
 router.put('/articles/:id', async (req, res) => {
   const { id } = req.params;
-  const { newsTitle, newsDescription } = req.body;
+  const { title, content, category, coverImage, additionalImage1, additionalImage2 } = req.body;
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: 'Invalid article ID' });
-  }
+  if (!ObjectId.isValid(id)) return res.status(400).json({ message: 'Invalid article ID' });
+  if (!title || !content || !category) return res.status(400).json({ message: 'Missing required fields' });
 
-  if (!newsTitle || !newsDescription) {
-    return res.status(400).json({ message: 'Title and description are required' });
-  }
-
-  // Optionally sanitize HTML or remove all HTML tags
-  const sanitizedTitle = sanitizeHtml(newsTitle, {
-    allowedTags: [],  // No HTML tags allowed
-  });
-
-  const sanitizedDescription = sanitizeHtml(newsDescription, {
-    allowedTags: [],  // No HTML tags allowed
-  });
+  const sanitizedTitle = sanitizeHtml(title, { allowedTags: [] });
+  const sanitizedContent = sanitizeHtml(content, { allowedTags: [] });
 
   try {
     const updatedArticle = await Article.findByIdAndUpdate(
       id,
-      { newsTitle: sanitizedTitle, newsDescription: sanitizedDescription },
+      {
+        title: sanitizedTitle,
+        content: sanitizedContent,
+        category,
+        coverImage: coverImage || "",
+        additionalImage1: additionalImage1 || "",
+        additionalImage2: additionalImage2 || ""
+      },
       { new: true }
     );
 
-    if (!updatedArticle) {
-      return res.status(404).json({ message: 'Article not found' });
-    }
-
-    res.status(200).json({ message: 'Article updated successfully', article: updatedArticle });
+    if (!updatedArticle) return res.status(404).json({ message: 'Article not found' });
+    res.json({ message: 'Article updated successfully', article: updatedArticle });
   } catch (error) {
     console.error('Error updating article:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
+// UPDATE article status in 'articles'
+router.put('/articles/:id/status', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
 
-// Approve article by ID
-router.patch('/articles/:id/approve', async (req, res) => {
+  if (!ObjectId.isValid(id)) return res.status(400).json({ message: 'Invalid article ID' });
+
+  const validStatuses = ['draft', 'pending', 'approved', 'review'];
+  if (!status || !validStatuses.includes(status)) {
+    return res.status(400).json({ message: 'Invalid or missing status' });
+  }
+
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ error: 'Invalid article ID format' });
-    }
-
     const updatedArticle = await Article.findByIdAndUpdate(
-      req.params.id,
-      { status: 'Approved' },
+      id,
+      { status },
       { new: true }
     );
-
-    if (!updatedArticle) {
-      return res.status(404).json({ error: 'Article not found' });
-    }
-
-    res.status(200).json(updatedArticle);
+    if (!updatedArticle) return res.status(404).json({ message: 'Article not found' });
+    res.json({ message: 'Status updated successfully', article: updatedArticle });
   } catch (error) {
-    console.error('Error approving article:', error);
-    return res.status(500).json({ error: 'Failed to approve the article' });
+    console.error('Error updating status:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
+// PATCH approve article in 'articles'
+router.patch('/articles/:id/approve', async (req, res) => {
+  const { id } = req.params;
+  if (!ObjectId.isValid(id)) return res.status(400).json({ message: 'Invalid article ID' });
+
+  try {
+    const updatedArticle = await Article.findByIdAndUpdate(
+      id,
+      { status: 'approved' },
+      { new: true }
+    );
+    if (!updatedArticle) return res.status(404).json({ message: 'Article not found' });
+    res.json(updatedArticle);
+  } catch (error) {
+    console.error('Error approving article:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// NEW ROUTE: Move an article from 'articles' to 'editor_articles'
+router.post('/articles/:id/move-to-editor', async (req, res) => {
+  try {
+    const articleId = req.params.id;
+    const { author } = req.body;
+
+    if (!author) {
+      return res.status(400).json({ message: 'Author is required' });
+    }
+
+    if (!ObjectId.isValid(articleId)) {
+      return res.status(400).json({ message: 'Invalid article ID' });
+    }
+
+    // Find article in 'articles' collection
+    const article = await Article.findById(articleId);
+    if (!article) {
+      return res.status(404).json({ message: 'Article not found in articles collection' });
+    }
+
+    // Create editor article with mapped fields & status adjustment
+    const editorArticle = new EditorArticle({
+      newsTitle: article.title,
+      newsDescription: article.content,
+      categories: [article.category],  // Convert single string category to array
+      author,
+      date: article.createdAt || new Date(),
+      status: article.status === 'review' ? 'Pending' : article.status.charAt(0).toUpperCase() + article.status.slice(1),
+      coverImage: article.coverImage || "",
+      additionalImage1: article.additionalImage1 || "",
+      additionalImage2: article.additionalImage2 || ""
+    });
+
+    await editorArticle.save();
+
+    res.status(201).json({ message: 'Article moved to editor_articles successfully', editorArticle });
+  } catch (error) {
+    console.error('Error moving article to editor:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 module.exports = router;
