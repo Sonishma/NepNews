@@ -1,41 +1,17 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const ArticleSchema = new mongoose.Schema({
-  title: {
+  title: { type: String, required: true },
+  content: { type: String, required: true },
+  category: {
     type: String,
-    required: true
+    required: true,
+    enum: ["global","politics", "sports", "health", "culture", "arts", "earth", "travel", "national"]
   },
-  content: {
-    type: String,
-    required: true
-  },
-  coverImage: {
-    type: String,
-    default: ''
-  },
-  images: [String],
-  author: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  status: {
-    type: String,
-    enum: ['draft', 'pending', 'approved', 'rejected', 'to_be_edited'],
-    default: 'draft'
-  },
-  editor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+  coverImage: { type: String, default: "" },
+  additionalImage1: { type: String, default: "" },
+  additionalImage2: { type: String, default: "" },
+  status: { type: String, enum: ["draft", "review"], default: "draft" }
+}, { timestamps: true });
 
-module.exports = mongoose.model('Article', ArticleSchema);
+module.exports = mongoose.model("Article", ArticleSchema);
